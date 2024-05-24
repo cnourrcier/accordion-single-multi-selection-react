@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import data from './data';
 import './styles.css';
 
@@ -8,27 +8,29 @@ export default function Accordion() {
     const [multiSelect, setMultiSelect] = useState([]);
 
     // Handler for single item selection
-    function handleSingleSelect(id) {
-        setSingleSelect(singleSelect === id ? null : id); // Toggle selection
-    }
+    const handleSingleSelect = useCallback((id) => {
+        setSingleSelect(prevId => (prevId === id ? null : id)); // Toggle selection
+    }, []);
 
     // Enable multi-select mode
-    function handleEnableMultiSelect() {
+    const handleEnableMultiSelect = useCallback(() => {
         setEnableMultiSelect(true);
-    }
+    }, []);
 
     // Disable multi-select mode
-    function handleDisableMultiSelect() {
+    const handleDisableMultiSelect = useCallback(() => {
         setEnableMultiSelect(false);
-    }
+    }, []);
 
     // Handler for multi-item selection
-    function handleMultiSelect(id) {
-        const multiSelectCopy = [...multiSelect];
-        const index = multiSelectCopy.indexOf(id);
-        index > -1 ? multiSelectCopy.splice(index, 1) : multiSelectCopy.push(id); // Add or remove item
-        setMultiSelect(multiSelectCopy);
-    }
+    const handleMultiSelect = useCallback((id) => {
+        setMultiSelect(prevMultiSelect => {
+            const multiSelectCopy = [...prevMultiSelect];
+            const index = multiSelectCopy.indexOf(id);
+            index > -1 ? multiSelectCopy.splice(index, 1) : multiSelectCopy.push(id);         // Add or remove item
+            return multiSelectCopy;
+        });
+    }, []);
 
     useEffect(() => {
         if (enableMultiSelect) {
@@ -39,7 +41,7 @@ export default function Accordion() {
         } else {
             setMultiSelect([]); // clear multiSelect state
         }
-    }, [enableMultiSelect])
+    }, [enableMultiSelect, singleSelect])
 
     return (
         <div className='container'>
